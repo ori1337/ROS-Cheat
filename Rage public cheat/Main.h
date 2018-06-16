@@ -5,7 +5,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "Stdafx.h"
 #include "CLogger.h"
 #include "C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9.h"
 #include "C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d9.h"

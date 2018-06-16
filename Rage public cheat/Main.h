@@ -14,8 +14,7 @@
 #include<stdlib.h>  //For System Pause
 //dx sdk 
 #if defined _M_X64
-#pragma comment(lib, "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x64\\d3dx9.lib") 
-#pragma comment(lib, "libMinHook-x64-v90-mt.lib") 
+#pragma comment(lib, "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x64\\d3dx9.lib")  
 #elif defined _M_IX86
 #pragma comment(lib, "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x86\\d3dx9.lib")
 #pragma comment(lib, "detours\\detours.lib") 

@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <time.h>
 #include "Mmsystem.h"
@@ -6,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "CLogger.h"
+
 #include "C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3dx9.h"
 #include "C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\d3d9.h"
 #pragma comment(lib, "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x86\\d3d9.lib")
@@ -14,7 +16,8 @@
 #include<stdlib.h>  //For System Pause
 //dx sdk 
 #if defined _M_X64
-#pragma comment(lib, "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x64\\d3dx9.lib")  
+#pragma comment(lib, "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x64\\d3dx9.lib") 
+#pragma comment(lib, "libMinHook-x64-v90-mt.lib") 
 #elif defined _M_IX86
 #pragma comment(lib, "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x86\\d3dx9.lib")
 #pragma comment(lib, "detours\\detours.lib") 
@@ -55,7 +58,11 @@ const int NUM_SECONDS = 5;
 //==========================================================================================================================
 
 //features
-
+//Groups
+//
+int misc_group = 0;
+int aim_group = 0;
+int Wallhacks_group = 0;
 //visuals
 int wallhack = 3;				//wallhack
 int esp = 10;					//esp
@@ -128,149 +135,6 @@ void Log(const char *fmt, ...)
 
 
 //==========================================================================================================================
-static bool xdxd = true;
-static LPD3DXFONT font = NULL;
-UINT mStartregister;
-UINT mVectorCount;
-
-struct Vector3
-{
-	float x;
-	float y;
-	float z;
-};
-
-
-class ClientApp
-{
-public:
-	static bool WorldToScreen(Vector3 pos, D3DXVECTOR3 &screen, D3DXMATRIX matrix, int windowWidth, int windowHeight)
-	{
-		D3DXVECTOR4 clipCoords;
-		clipCoords.x = pos.x*matrix[0] + pos.y*matrix[4] + pos.z*matrix[8] + matrix[12];
-		clipCoords.y = pos.x*matrix[1] + pos.y*matrix[5] + pos.z*matrix[9] + matrix[13];
-		clipCoords.z = pos.x*matrix[2] + pos.y*matrix[6] + pos.z*matrix[10] + matrix[14];
-		clipCoords.w = pos.x*matrix[3] + pos.y*matrix[7] + pos.z*matrix[11] + matrix[15];
-
-		if (clipCoords.w < 0.1f)
-			return false;
-
-		D3DXVECTOR3 NDC;
-		NDC.x = clipCoords.x / clipCoords.w;
-		NDC.y = clipCoords.y / clipCoords.w;
-		NDC.z = clipCoords.z / clipCoords.w;
-
-		screen.x = (windowWidth / 2 * NDC.x) + (NDC.x + windowWidth / 2);
-		screen.y = -(windowHeight / 2 * NDC.y) + (NDC.y + windowHeight / 2);
-		return true;
-	}
-	static bool WorldToScreen(D3DXVECTOR3 pos, D3DXVECTOR3 &screen, D3DXMATRIX matrix, int windowWidth, int windowHeight)
-	{
-		D3DXVECTOR4 clipCoords;
-		clipCoords.x = pos.x*matrix[0] + pos.y*matrix[4] + pos.z*matrix[8] + matrix[12];
-		clipCoords.y = pos.x*matrix[1] + pos.y*matrix[5] + pos.z*matrix[9] + matrix[13];
-		clipCoords.z = pos.x*matrix[2] + pos.y*matrix[6] + pos.z*matrix[10] + matrix[14];
-		clipCoords.w = pos.x*matrix[3] + pos.y*matrix[7] + pos.z*matrix[11] + matrix[15];
-
-		if (clipCoords.w < 0.1f)
-			return false;
-
-		D3DXVECTOR3 NDC;
-		NDC.x = clipCoords.x / clipCoords.w;
-		NDC.y = clipCoords.y / clipCoords.w;
-		NDC.z = clipCoords.z / clipCoords.w;
-
-		screen.x = (windowWidth / 2 * NDC.x) + (NDC.x + windowWidth / 2);
-		screen.y = -(windowHeight / 2 * NDC.y) + (NDC.y + windowHeight / 2);
-		return true;
-	}
-
-};
-
-class Meta
-{
-public:
-	char _0x0000[4];
-	void* m_pMeta; //0x0004 
-	char _0x0008[4];
-	char* pName; //0x000C  Land, Athlete, Plane, PlayerAvatar
-};
-
-class mHP
-{
-public:
-	char pad_0x0000[0x8]; //0x0000
-	__int32 HP; //0x0008 
-
-}; //Size=0x000C
-
-class mNick
-{
-public:
-	char pad_0x0000[0x8]; //0x0000
-	__int32 nickLen; //0x0008 
-	char pad_0x000C[0x8]; //0x000C
-	char m_NickName[4]; //0x497888 
-
-}; //Size=0x0018
-
-class mSimple
-{
-public:
-	char pad_0x0000[0x8]; //0x0000
-	__int32 mVal; //0x0008 
-
-}; //Size=0x000C
-
-class mTablePtr
-{
-public:
-	char pad_0000[44]; //0x0000
-	class mSimple* Prop; //0x002C
-	char pad_0030[104]; //0x0030
-	class mHP* m_HpRow; //0x0098
-	char pad_009C[8]; //0x009C
-	class mHP* m_MaxHpRow; //0x00A4
-	char pad_00A8[140]; //0x00A8
-	class mSimple* m_TeamRow; //0x0134
-	char pad_0138[68]; //0x0138
-	class mSimple* m_PoseRow; //0x017C
-	char pad_0180[632]; //0x0180
-	class mNick* m_NickRow; //0x03F8
-	char pad_03FC[80]; //0x03FC
-	class mSimple* m_InVehicleRow; //0x044C
-	char pad_0450[8]; //0x0450
-	class mSimple* m_DriverRow; //0x0458
-	char pad_045C[284]; //0x045C
-	class mSimple* m_LocalTeamRow; //0x0578
-}; //Size: 0x1444
-
-class mTable
-{
-public:
-	char pad_0x0000[0x14]; //0x0000
-	mTablePtr* pTable; //0x0014 
-}; //Size=0x0018
-
-class mKey {
-public:
-	DWORD Val;
-};
-
-class CEntity {
-public:
-	char pad_0000[4]; //0x0000
-	class Meta* m_pMeta; //0x0004
-	char pad_0008[8]; //0x0008
-	DWORD EncryptedX; //0x0010
-	class mKey* XKey; //0x0014
-	DWORD EncryptedY; //0x0018
-	class mKey* YKey; //0x001C
-	DWORD EncryptedZ; //0x0020
-	class mKey* ZKey; //0x0024
-	char pad_0028[248]; //0x0028
-	class mTable* m_Table; //0x0120
-};
 
 //==========================================================================================================================
 
@@ -683,7 +547,87 @@ void AddItem(LPDIRECT3DDEVICE9 pDevice, char *text, int &var, char **opt, int Ma
 		Current++;
 	}
 }
+void AddItemGroup(LPDIRECT3DDEVICE9 pDevice, char *text, int &var, char **opt, int MaxValue)
+{
+	if (ShowMenu)
+	{
+		int Check = CheckTab(PosX + 44, (PosY + 51) + (Current * 15), 190, 10);
+		DWORD ColorText;
 
+		if (var)
+		{
+			DrawBox(pDevice, PosX+44, PosY+51 + (Current * 15), 190, 10, D3DCOLOR_XRGB(255, 0, 0));
+			ColorText = D3DCOLOR_ARGB(255, 255, 214, 51);
+		}
+		if (var == 0)
+		{
+			DrawBox(pDevice, PosX+44, PosY+51 + (Current * 15), 190, 10, D3DCOLOR_XRGB(51, 51, 255));
+			ColorText = D3DCOLOR_ARGB(255, 255, 71, 26);
+		}
+
+		if (Check == 1)
+		{
+			var++;
+			if (var > MaxValue)
+				var = 0;
+		}
+
+		if (Check == 2)
+			ColorText = D3DCOLOR_ARGB(255, 255, 255, 255);
+
+		if (menuselect == Current)
+		{
+			static int lasttick_right = GetTickCount64();
+			static int lasttick_left = GetTickCount64();
+			if (GetAsyncKeyState(VK_RIGHT) && GetTickCount64() - lasttick_right > 100)
+			{
+				lasttick_right = GetTickCount64();
+				var++;
+				if (var > MaxValue)
+					var = 0;
+			}
+			else if (GetAsyncKeyState(VK_LEFT) && GetTickCount64() - lasttick_left > 100)
+			{
+				lasttick_left = GetTickCount64();
+				var--;
+				if (var < 0)
+					var = MaxValue;
+			}
+		}
+
+		if (menuselect == Current)
+			ColorText = D3DCOLOR_ARGB(255, 255, 255, 255);
+
+
+		WriteText(PosX + 44, PosY + 50 + (Current * 15) - 1, D3DCOLOR_ARGB(255, 50, 50, 50), text);
+		WriteText(PosX + 45, PosY + 51 + (Current * 15) - 1, ColorText, text);
+
+		lWriteText(PosX + 236, PosY + 50 + (Current * 15) - 1, D3DCOLOR_ARGB(255, 100, 100, 100), opt[var]);
+		lWriteText(PosX + 237, PosY + 51 + (Current * 15) - 1, ColorText, opt[var]);
+		Current++;
+	}
+}
+void AddGroup(LPDIRECT3DDEVICE9 pDevice, char *txt, int &var, char **opt, int maxval)
+{
+	AddItemGroup(pDevice, txt, var, opt, maxval);
+}
+void AddText(LPDIRECT3DDEVICE9 pDevice, char *text, int &var, int MaxValue)
+{
+	if (ShowMenu)
+	{
+		int Check = CheckTab(PosX + 44, (PosY + 51) + (Current * 15), 190, 10);
+		DWORD ColorText;
+		if (menuselect == Current)
+			ColorText = D3DCOLOR_XRGB(51, 255, 255);
+
+		WriteText(PosX + 44, PosY + 50 + (Current * 15) - 1, D3DCOLOR_XRGB(51, 255, 255), text);
+		WriteText(PosX + 45, PosY + 51 + (Current * 15) - 1, ColorText, text);
+
+		//lWriteText(PosX + 236, PosY + 50 + (Current * 15) - 1, D3DCOLOR_ARGB(255, 100, 100, 100), opt[var]);
+		//lWriteText(PosX + 237, PosY + 51 + (Current * 15) - 1, ColorText, opt[var]);
+		Current++;
+	}
+}
 //==========================================================================================================================
 
 // menu part
@@ -731,36 +675,53 @@ void DrawMenu(LPDIRECT3DDEVICE9 pDevice)
 
 		Current = 1;
 
-		
-		WriteText(74.f, 62.0f, D3DCOLOR_ARGB(255, 255, 255, 000), (PCHAR)" My YouTube CH is \"gay null\", the multi hack is by UNKNOWNCHEATS.ME community");
+		WriteText(74.f, 47.0f, D3DCOLOR_ARGB(255, 255, 255, 000), (PCHAR)"All credits to UNKNOWNCHEATS");
 		WriteText(74.f, 50.0f, D3DCOLOR_ARGB(255, 255, 255, 000), (PCHAR)"Please visit http://UNKNOWNCHEATS.ME/");
-		AddItem(pDevice, (PCHAR)" Wallhack", wallhack, opt_WhChams, 8);
-		AddItem(pDevice, (PCHAR)" No Fog", nofog, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR)" No Grass (Not working Keep it here)", nograss, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR)" Esp", esp, opt_ZeroTen, 10);
-		AddItem(pDevice, (PCHAR)" Aimbot", aimbot, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR)" Aimkey", aimkey, opt_Keys, 8);
-		AddItem(pDevice, (PCHAR)" Aimsens", aimsens, opt_ZeroTen, 10);
-		AddItem(pDevice, (PCHAR)" Aimfov", aimfov, opt_aimfov, 9);
-		AddItem(pDevice, (PCHAR)" Aimheight", aimheight, opt_ZeroTen, 5);
-		AddItem(pDevice, (PCHAR) " Autoshoot", autoshoot, opt_autoshoot, 1);
-		AddItem(pDevice, (PCHAR)" Speed", fastrun, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR) " NoFallDamage", nofalldmg, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR) " Underwater", underwater, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR) " Gravemode", gravemode, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR) " Autoclimb (dead, also it shit)", autoclimb, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR) " Walkthrough", walkthrough, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR) " JUMPHACK", jumphack, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR)" Antispectate NUMPAD1/2", antispectate, opt_OnOff, 1); //this is actually usless in menu i just put it to let you know it exist in hack
-		AddItem(pDevice, (PCHAR)" FASTPARACUTE F2 on/off", FASTPARACUTE, opt_OnOff, 1); //same as antispectate usless in menu
-		AddItem(pDevice, (PCHAR)" Crosshair", crosshair, opt_Crosshair, 5);
-		AddItem(pDevice, (PCHAR)" super car + Super speed adder", superCarSuperSpeed, opt_OnOff, 1);
-		AddItem(pDevice, (PCHAR)" ColorsGlow", GlowItems, opt_ColorsGlow, 1);
-		AddItem(pDevice, (PCHAR)" White items", WhiteItems, opt_OnOff, 1);
+		WriteText(74.f, 62.0f, D3DCOLOR_ARGB(255, 255, 255, 000), (PCHAR)" My YouTube CH is \"gay null\", the multi hack is by UNKNOWNCHEATS.ME community");
+		AddText(pDevice, (PCHAR) "[-==========-]", WhiteItems, 1);
+		AddGroup(pDevice, (PCHAR)"[-=AIM SETTINGS=-]", aim_group, opt_OnOff, 1);
+		if (aim_group) {
+			AddText(pDevice, (PCHAR) "[-==========-]", WhiteItems, 1);
+			AddItem(pDevice, (PCHAR) " Aimbot", aimbot, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " Aimkey", aimkey, opt_Keys, 8);
+			AddItem(pDevice, (PCHAR) " Aimsens", aimsens, opt_ZeroTen, 10);
+			AddItem(pDevice, (PCHAR) " Aimfov", aimfov, opt_aimfov, 9);
+			AddItem(pDevice, (PCHAR) " Aimheight", aimheight, opt_ZeroTen, 5);
+			AddItem(pDevice, (PCHAR) " Autoshoot", autoshoot, opt_autoshoot, 1);
+			AddText(pDevice, (PCHAR) "[-==========-]", WhiteItems, 1);
+		}
+		AddGroup(pDevice, (PCHAR)"[-=MISC SETTINGS=-]", misc_group, opt_OnOff, 1);
+		if (misc_group) {
+			AddText(pDevice, (PCHAR) "[-==========-]", WhiteItems, 1);
+			AddItem(pDevice, (PCHAR) " Speed", fastrun, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " NoFallDamage", nofalldmg, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " Underwater", underwater, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " Gravemode", gravemode, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " Autoclimb (dead, also it shit)", autoclimb, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " Walkthrough", walkthrough, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " JUMPHACK", jumphack, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " Antispectate NUMPAD1/2", antispectate, opt_OnOff, 1); //this is actually usless in menu i just put it to let you know it exist in hack
+			AddItem(pDevice, (PCHAR) " FASTPARACUTE F2 on/off", FASTPARACUTE, opt_OnOff, 1); //same as antispectate usless in menu
+			AddItem(pDevice, (PCHAR) " Crosshair", crosshair, opt_Crosshair, 5);
+			AddItem(pDevice, (PCHAR) " super car + Super speed adder", superCarSuperSpeed, opt_OnOff, 1);
+			AddText(pDevice, (PCHAR) "[-==========-]", WhiteItems, 1);
+		}
+		AddGroup(pDevice, (PCHAR)"[-=WALLHACKS SETTINGS=-]", misc_group, opt_OnOff, 1);
+		if (Wallhacks_group) {
+			AddText(pDevice, (PCHAR) "[-==========-]", WhiteItems, 1);
+			AddItem(pDevice, (PCHAR) " Esp", esp, opt_ZeroTen, 10);
+			AddItem(pDevice, (PCHAR) " Wallhack", wallhack, opt_WhChams, 2);
+			AddItem(pDevice, (PCHAR) " No Fog", nofog, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " No Grass", nograss, opt_OnOff, 1);
+			AddItem(pDevice, (PCHAR) " ColorsGlow", GlowItems, opt_ColorsGlow, 1);
+			AddItem(pDevice, (PCHAR) " White items", WhiteItems, opt_OnOff, 1);
+			AddText(pDevice, (PCHAR) "[-==========-]", WhiteItems, 1);
+		}
 		if (menuselect >= Current)
 			menuselect = 1;
+
 		if (menuselect < 1)
-			menuselect = 23;//Current;
+			menuselect = 33;//Current;
 	}
 }
 

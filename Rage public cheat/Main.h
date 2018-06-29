@@ -91,7 +91,7 @@ int superCarSuperSpeed = 0;
 int aimbot = 1;
 int aimkey = 1;
 DWORD Daimkey = VK_RBUTTON;		//aimkey
-int aimsens = 1;				//aim sensitivity, makes aim smoother
+int aimsens = 2;				//aim sensitivity, makes aim smoother
 int aimfov = 7;					//aim field of view in % 
 int aimheight = 3;				//aim height value, high value aims higher
 
